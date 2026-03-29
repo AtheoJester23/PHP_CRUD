@@ -3,22 +3,22 @@
 if($_SERVER["REQUEST_METHOD"] === "POST"){
     $username = $_POST["username"];
     $pwd = $_POST["password"];
-    $email = $_POST["email"];
 
-    if(empty($username) || empty($pwd) || empty($email)){
+    if(empty($username) || empty($pwd)){
         exit();
     }
 
     try{
         require_once "dbh.inc.php";
 
-        $query = "INSERT INTO users (username, pwd, email)
-            VALUES(?, ?, ?)
-        ";
+        $query = "DELETE FROM users WHERE username = :username AND pwd = :pwd";
 
         $stmt = $pdo->prepare($query);
 
-        $stmt->execute([$username, $pwd, $email]);
+        $stmt->bindParam(":username", $username);
+        $stmt->bindParam(":pwd", $pwd);
+
+        $stmt->execute();
 
         $pdo = null;
         $stmt = null;
@@ -26,10 +26,10 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
         header("Location: ../index.php");
 
         die();
+
     }catch(PDOException $e){
-        error_log("Failed to create account: " . $e->getMessage());
-    };
+        error_log('Query failed: ' . $e->getMessage());
+    }
 }else{
     header("Location: ../index.php");
 }
-
