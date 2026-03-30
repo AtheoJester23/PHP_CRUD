@@ -18,7 +18,14 @@ if($_SERVER["REQUEST_METHOD"] === "POST"){
 
         $stmt = $pdo->prepare($query);
 
-        $stmt->execute([$username, $pwd, $email]);
+        $options = [
+            'cost'=>12
+        ];
+
+        $hashedPwd = password_hash($pwd, PASSWORD_BCRYPT, $options);
+        
+
+        $stmt->execute([$username, $hashedPwd, $email]);
 
         $pdo = null;
         $stmt = null;
